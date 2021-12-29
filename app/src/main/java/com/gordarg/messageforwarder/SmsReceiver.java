@@ -7,13 +7,19 @@ import android.os.Bundle;
 import android.telephony.SmsMessage;
 import android.widget.Toast;
 
-public class SmsReciever extends BroadcastReceiver {
+import com.gordarg.messageforwarder.data.DBHelper;
+import com.gordarg.messageforwarder.model.Forwarder;
+
+import java.util.ArrayList;
+
+public class SmsReceiver extends BroadcastReceiver {
 
     private static final String SMS_RECEIVED = "android.provider.Telephony.SMS_RECEIVED";
 
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent.getAction().equals(SMS_RECEIVED)) {
+
             Bundle bundle = intent.getExtras();
             if (bundle != null) {
                 // get sms objects
@@ -31,11 +37,19 @@ public class SmsReciever extends BroadcastReceiver {
                 String sender = messages[0].getOriginatingAddress();
                 String message = sb.toString();
 
-                if (sender.equals("+123")
-                    || sender.equals("123")) {
-                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
-                    SmsSender.sendSMS(context, "321", message);
+                DBHelper mydb = new DBHelper(context);
+
+                ArrayList<Forwarder> forwarders = mydb.getAllForwarders();
+                for (Forwarder forwarder : forwarders)
+                {
+                    if (sender.equals(forwarder.getFrom()))
+                    {
+                        Toast.makeText(context, "Forwarding to " + forwarder.getTo() , Toast.LENGTH_LONG).show();
+                        SmsSender.sendSMS(context, forwarder.getTo(), message);
+                    }
                 }
+
+                // TODO: Check the lines below; what are them? Idk.
                 // prevent any other broadcast receivers from receiving broadcast
                 // abortBroadcast();
             }
