@@ -20,15 +20,13 @@ public class SmsReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent.getAction().equals(SMS_RECEIVED)) {
-
             Bundle bundle = intent.getExtras();
             if (bundle != null) {
-                // get sms objects
                 Object[] pdus = (Object[]) bundle.get("pdus");
                 if (pdus.length == 0) {
                     return;
                 }
-                // large message might be broken into many
+                
                 SmsMessage[] messages = new SmsMessage[pdus.length];
                 StringBuilder sb = new StringBuilder();
                 for (int i = 0; i < pdus.length; i++) {
@@ -40,36 +38,27 @@ public class SmsReceiver extends BroadcastReceiver {
 
                 DBHelper mydb = new DBHelper(context);
 
-                // Check auto-reply rules first
                 ArrayList<AutoReply> autoReplies = mydb.getAllAutoReplies();
                 for (AutoReply autoReply : autoReplies) {
                     if (autoReply.isEnabled() && checkAutoReplyCondition(message, autoReply.getCondition())) {
                         Toast.makeText(context, "Auto-replying to " + sender, Toast.LENGTH_LONG).show();
                         SmsSender.sendSMS(context, sender, autoReply.getReply());
-                        break; // Only apply first matching auto-reply
+                        break;
                     }
                 }
 
-                // Then check forwarding rules
                 ArrayList<Forwarder> forwarders = mydb.getAllForwarders();
-                for (Forwarder forwarder : forwarders)
-                {
-                    if (sender.equals(forwarder.getFrom()))
-                    {
-                        Toast.makeText(context, "Forwarding to " + forwarder.getTo() , Toast.LENGTH_LONG).show();
+                for (Forwarder forwarder : forwarders) {
+                    if (sender.equals(forwarder.getFrom())) {
+                        Toast.makeText(context, "Forwarding to " + forwarder.getTo(), Toast.LENGTH_LONG).show();
                         SmsSender.sendSMS(context, forwarder.getTo(), message);
                     }
                 }
-
-                // TODO: Check the lines below; what are them? Idk.
-                // prevent any other broadcast receivers from receiving broadcast
-                // abortBroadcast();
             }
         }
     }
     
     private boolean checkAutoReplyCondition(String message, String condition) {
-        // Condition can contain multiple patterns separated by |
         String[] patterns = condition.split("\\|");
         String trimmedMessage = message.trim();
         
