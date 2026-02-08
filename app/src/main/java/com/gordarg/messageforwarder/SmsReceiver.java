@@ -43,7 +43,7 @@ public class SmsReceiver extends BroadcastReceiver {
                 // Check auto-reply rules first
                 ArrayList<AutoReply> autoReplies = mydb.getAllAutoReplies();
                 for (AutoReply autoReply : autoReplies) {
-                    if (autoReply.getIsEnabled() && checkAutoReplyCondition(message, autoReply.getCondition())) {
+                    if (autoReply.isEnabled() && checkAutoReplyCondition(message, autoReply.getCondition())) {
                         Toast.makeText(context, "Auto-replying to " + sender, Toast.LENGTH_LONG).show();
                         SmsSender.sendSMS(context, sender, autoReply.getReply());
                         break; // Only apply first matching auto-reply

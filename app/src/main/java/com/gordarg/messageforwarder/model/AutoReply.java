@@ -1,40 +1,40 @@
 package com.gordarg.messageforwarder.model;
 
 public class AutoReply {
-    private int Id;
-    private String Condition;
-    private String Reply;
-    private boolean IsEnabled;
+    private int id;
+    private String condition;
+    private String reply;
+    private boolean isEnabled;
 
     public void setId(int value) {
-        this.Id = value;
+        this.id = value;
     }
 
     public int getId() {
-        return this.Id;
+        return this.id;
     }
 
     public void setCondition(String value) {
-        this.Condition = value;
+        this.condition = value;
     }
 
     public String getCondition() {
-        return this.Condition;
+        return this.condition;
     }
 
     public void setReply(String value) {
-        this.Reply = value;
+        this.reply = value;
     }
 
     public String getReply() {
-        return this.Reply;
+        return this.reply;
     }
 
     public void setIsEnabled(boolean value) {
-        this.IsEnabled = value;
+        this.isEnabled = value;
     }
 
-    public boolean getIsEnabled() {
-        return this.IsEnabled;
+    public boolean isEnabled() {
+        return this.isEnabled;
     }
 }
