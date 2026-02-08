@@ -8,6 +8,7 @@ import android.telephony.SmsMessage;
 import android.widget.Toast;
 
 import com.gordarg.messageforwarder.data.DBHelper;
+import com.gordarg.messageforwarder.model.AutoReply;
 import com.gordarg.messageforwarder.model.Forwarder;
 
 import java.util.ArrayList;
@@ -39,6 +40,17 @@ public class SmsReceiver extends BroadcastReceiver {
 
                 DBHelper mydb = new DBHelper(context);
 
+                // Check auto-reply rules first
+                ArrayList<AutoReply> autoReplies = mydb.getAllAutoReplies();
+                for (AutoReply autoReply : autoReplies) {
+                    if (autoReply.getIsEnabled() && checkAutoReplyCondition(message, autoReply.getCondition())) {
+                        Toast.makeText(context, "Auto-replying to " + sender, Toast.LENGTH_LONG).show();
+                        SmsSender.sendSMS(context, sender, autoReply.getReply());
+                        break; // Only apply first matching auto-reply
+                    }
+                }
+
+                // Then check forwarding rules
                 ArrayList<Forwarder> forwarders = mydb.getAllForwarders();
                 for (Forwarder forwarder : forwarders)
                 {
@@ -54,5 +66,18 @@ public class SmsReceiver extends BroadcastReceiver {
                 // abortBroadcast();
             }
         }
+    }
+    
+    private boolean checkAutoReplyCondition(String message, String condition) {
+        // Condition can contain multiple patterns separated by |
+        String[] patterns = condition.split("\\|");
+        String trimmedMessage = message.trim();
+        
+        for (String pattern : patterns) {
+            if (trimmedMessage.equals(pattern.trim())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

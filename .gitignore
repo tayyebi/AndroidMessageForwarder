@@ -15,3 +15,5 @@ gradle
 .externalNativeBuild
 .cxx
 local.properties
+*.keystore
+release.keystore
