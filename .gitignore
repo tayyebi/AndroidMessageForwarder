@@ -1,7 +1,6 @@
 *.iml
 .gradle
 .idea
-gradle
 /local.properties
 /.idea/caches
 /.idea/libraries
@@ -15,3 +14,5 @@ gradle
 .externalNativeBuild
 .cxx
 local.properties
+*.keystore
+release.keystore
